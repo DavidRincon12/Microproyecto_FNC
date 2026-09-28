@@ -1,0 +1,7 @@
+# E7: lenguaje vacío
+VARIABLES: S, A
+TERMINALES: a
+INICIAL: S
+PRODUCCIONES:
+S -> AS
+A -> a

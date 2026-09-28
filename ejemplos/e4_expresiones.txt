@@ -1,0 +1,8 @@
+# E4: expresiones aritméticas, cadenas de unitarias
+VARIABLES: E, T, F
+TERMINALES: +, *, (, ), a
+INICIAL: E
+PRODUCCIONES:
+E -> E+T | T
+T -> T*F | F
+F -> (E) | a

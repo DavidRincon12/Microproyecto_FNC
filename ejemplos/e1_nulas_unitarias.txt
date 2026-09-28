@@ -1,0 +1,8 @@
+# E1: producciones nulas y unitarias
+VARIABLES: S, A, B
+TERMINALES: a, b
+INICIAL: S
+PRODUCCIONES:
+S -> ASA | aB
+A -> B | S
+B -> b | ε

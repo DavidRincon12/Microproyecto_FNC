@@ -1,0 +1,10 @@
+# E2: variables inútiles e inalcanzables
+VARIABLES: S, A, B, C, D
+TERMINALES: a, b, c, d
+INICIAL: S
+PRODUCCIONES:
+S -> AB | a
+A -> b
+B -> BC
+C -> c
+D -> d

@@ -1,0 +1,6 @@
+# E3: símbolo inicial anulable, tratamiento de ε
+VARIABLES: S
+TERMINALES: a, b
+INICIAL: S
+PRODUCCIONES:
+S -> aSb | ε

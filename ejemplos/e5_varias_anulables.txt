@@ -1,0 +1,9 @@
+# E5: varias anulables y producciones largas
+VARIABLES: S, A, B, C
+TERMINALES: a, b, c
+INICIAL: S
+PRODUCCIONES:
+S -> ABC | aSc
+A -> aA | ε
+B -> bB | ε
+C -> c

@@ -1,0 +1,7 @@
+# E8: gramática con errores
+VARIABLES: S, A
+TERMINALES: a, b
+INICIAL: X
+PRODUCCIONES:
+S -> AD | aSc
+A -> a

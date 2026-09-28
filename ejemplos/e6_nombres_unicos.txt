@@ -1,0 +1,7 @@
+# E6: nombres únicos, el usuario ya usó X1
+VARIABLES: S, X1
+TERMINALES: a, b
+INICIAL: S
+PRODUCCIONES:
+S -> aX1b | ab
+X1 -> aX1 | a
