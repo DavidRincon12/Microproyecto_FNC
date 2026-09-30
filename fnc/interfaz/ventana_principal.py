@@ -450,6 +450,9 @@ class VentanaPrincipal(tk.Tk):
                 "fnc": "8. Convertir a Forma Normal de Chomsky",
             }
             self.lbl_siguiente.config(text=f"Siguiente etapa: {nombres.get(siguiente, siguiente)}", foreground="#0055AA")
+        elif self.proceso.lenguaje_vacio():
+            self.btn_automatico.config(state=tk.DISABLED)
+            self.lbl_siguiente.config(text="Proceso detenido: el lenguaje es vacío.", foreground="#B00020")
         else:
             self.btn_automatico.config(state=tk.DISABLED)
             self.lbl_siguiente.config(text="Proceso completado.", foreground="#2E7D32")
@@ -509,6 +512,7 @@ class VentanaPrincipal(tk.Tk):
             else:
                 self.notebook.select(self.tab_paso)
                 self.lbl_estado.config(text=f"Etapa '{etapa}' ejecutada correctamente.")
+                self._avisar_si_lenguaje_vacio()
 
         except ErrorProceso as err:
             messagebox.showwarning("Atención", str(err))
@@ -534,6 +538,9 @@ class VentanaPrincipal(tk.Tk):
                     self._actualizar_texto(self.texto_final, g_final.a_texto())
                 self.notebook.select(self.tab_final)
                 self.lbl_estado.config(text="Proceso completo ejecutado con éxito.")
+            else:
+                self.notebook.select(self.tab_paso)
+                self._avisar_si_lenguaje_vacio()
         except ErrorProceso as err:
             messagebox.showwarning("Atención", str(err))
             self.lbl_estado.config(text=str(err))
@@ -541,6 +548,13 @@ class VentanaPrincipal(tk.Tk):
             messagebox.showerror("Error", f"Error en la ejecución automática: {e}")
 
         self._actualizar_estado_botones()
+
+    def _avisar_si_lenguaje_vacio(self) -> None:
+        """Informa que el proceso se detuvo porque el símbolo inicial no genera cadenas."""
+        if self.proceso and self.proceso.lenguaje_vacio():
+            mensaje = "El lenguaje de la gramática es vacío: el símbolo inicial no genera ninguna cadena. El proceso se detuvo."
+            self.lbl_estado.config(text=mensaje)
+            messagebox.showwarning("Lenguaje vacío", mensaje)
 
     def _accion_mostrar_original(self) -> None:
         if not self.proceso or not self.proceso.gramatica_original():
