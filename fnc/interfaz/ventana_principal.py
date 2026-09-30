@@ -34,7 +34,7 @@ class VentanaPrincipal(tk.Tk):
         super().__init__()
         self.title("Depuración y Forma Normal de Chomsky")
         self.minsize(1050, 680)
-        self.geometry("1100, 720")
+        self.geometry("1100x720")
 
         # Controlador del proceso
         self.proceso = ProcesoFNC() if ProcesoFNC is not None else None
