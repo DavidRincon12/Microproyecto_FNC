@@ -490,7 +490,15 @@ class VentanaPrincipal(tk.Tk):
             self._actualizar_texto(self.texto_paso, paso_val.a_texto())
             self._actualizar_texto(self.texto_historial, self.proceso.historial().a_texto())
             self.notebook.select(self.tab_paso)
-            self.lbl_estado.config(text="Gramática validada correctamente. Puede iniciar el proceso.")
+            advertencias = [obs for obs in paso_val.observaciones if obs.startswith("Advertencia")]
+            if advertencias:
+                self.lbl_estado.config(text="Gramática validada con advertencias. Puede iniciar el proceso.")
+                messagebox.showwarning(
+                    "Advertencias de validación",
+                    "La gramática se puede procesar, pero se encontró lo siguiente:\n\n" + "\n".join(advertencias),
+                )
+            else:
+                self.lbl_estado.config(text="Gramática validada correctamente. Puede iniciar el proceso.")
 
         self._actualizar_estado_botones()
 
