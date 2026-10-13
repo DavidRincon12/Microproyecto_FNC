@@ -26,12 +26,22 @@ class PruebasProceso(unittest.TestCase):
         self.assertEqual(proceso.historial().pasos[0].nombre, "Validación de la gramática")
         self.assertEqual(proceso.siguiente_etapa(), "nulas")
 
-    def test_gramatica_con_errores_no_avanza(self):
-        proceso = proceso_con_ejemplo("e8_con_errores.txt")
-        self.assertEqual(len(proceso.validar()), 3)
+    def test_gramatica_mal_escrita_no_avanza(self):
+        proceso = ProcesoFNC()
+        proceso.ingresar_gramatica("S", "a", "S", "S = a")
+        self.assertEqual(len(proceso.validar()), 1)
         self.assertFalse(proceso.gramatica_es_valida())
         with self.assertRaises(ErrorProceso):
             proceso.ejecutar_proceso_completo()
+
+    def test_simbolos_no_declarados_quedan_en_el_paso_de_validacion(self):
+        proceso = proceso_con_ejemplo("e8_con_errores.txt")
+        self.assertEqual(proceso.validar(), [])
+        paso_validacion = proceso.historial().pasos[0]
+        self.assertEqual(len(paso_validacion.producciones_eliminadas), 4)
+        self.assertIn("B -> b", paso_validacion.gramatica_inicial.lineas_producciones())
+        proceso.ejecutar_proceso_completo()
+        self.assertEqual(proceso.gramatica_final().lineas_producciones(), ["S -> X1 A", "A -> a", "X1 -> a"])
 
     def test_modo_paso_a_paso_respeta_el_orden(self):
         proceso = proceso_con_ejemplo("e1_nulas_unitarias.txt")

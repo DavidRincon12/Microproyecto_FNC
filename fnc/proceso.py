@@ -49,9 +49,10 @@ class ProcesoFNC:
         self._texto_ingresado = (texto_variables, texto_terminales, texto_inicial, texto_producciones)
 
     def validar(self) -> list[str]:
-        """RF06. Valida lo ingresado y devuelve la lista de errores ([] = válida).
+        """RF06. Valida lo ingresado y devuelve la lista de errores que impiden continuar.
 
-        Si la gramática es válida se registra el paso de validación en el historial.
+        Solo los errores de escritura bloquean el proceso. Las producciones con símbolos
+        no declarados se descartan y quedan registradas en el paso de validación.
         """
         texto_ingresado = self._texto_ingresado
         self.reiniciar()
@@ -66,17 +67,22 @@ class ProcesoFNC:
         gramatica = resultado.gramatica
         self._gramatica_original = gramatica
         self._gramatica_actual = gramatica
+        if resultado.producciones_descartadas:
+            conclusion = "La gramática se puede procesar; se descartaron las producciones con símbolos no declarados."
+        else:
+            conclusion = "La gramática es válida."
         self._historial.registrar(Paso(
             nombre="Validación de la gramática",
-            gramatica_inicial=gramatica.copiar(),
+            gramatica_inicial=resultado.gramatica_ingresada.copiar(),
             gramatica_resultante=gramatica.copiar(),
+            producciones_eliminadas=resultado.producciones_descartadas,
             elementos_identificados={
                 "Variables (no terminales)": gramatica.variables_en_orden(),
                 "Terminales": list(gramatica.terminales),
                 "Símbolo inicial": [gramatica.simbolo_inicial],
                 "Número de producciones": [str(gramatica.cantidad_producciones())],
             },
-            observaciones=["La gramática es válida."] + resultado.advertencias,
+            observaciones=[conclusion] + resultado.advertencias,
         ))
         return []
 

@@ -1,7 +1,8 @@
-# E8: gramática con errores
+# E8: símbolos no declarados (se descartan sus producciones)
 VARIABLES: S, A
 TERMINALES: a, b
-INICIAL: X
+INICIAL: S
 PRODUCCIONES:
-S -> AD | aSc
-A -> a
+S -> AD | aSc | aA
+A -> a | B
+B -> b

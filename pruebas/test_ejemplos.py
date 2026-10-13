@@ -149,15 +149,16 @@ class PruebasEjemplosIntegracion(unittest.TestCase):
         self.assertIn("Eliminación de variables inútiles", nombres_pasos)
         self.assertNotIn("Convertir a Forma Normal de Chomsky", nombres_pasos)
 
-    def test_e8_con_errores_no_inicia_proceso(self):
+    def test_e8_descarta_simbolos_no_declarados_y_continua(self):
         datos = leer_archivo(ruta_ejemplo("e8_con_errores.txt"))
         proceso = ProcesoFNC()
         proceso.ingresar_gramatica(
             datos["variables"], datos["terminales"], datos["inicial"], datos["producciones"]
         )
-        errores = proceso.validar()
-        self.assertEqual(len(errores), 3)
-        self.assertFalse(proceso.gramatica_es_valida())
+        self.assertEqual(proceso.validar(), [])
+        self.assertTrue(proceso.gramatica_es_valida())
+        proceso.ejecutar_proceso_completo()
+        self.assertEqual(validar_fnc(proceso.gramatica_final()), [])
 
     def test_rnf11_reproducibilidad_dos_ejecuciones(self):
         """Verifica que ejecutar el proceso dos veces sobre cada gramática produce resultados idénticos."""

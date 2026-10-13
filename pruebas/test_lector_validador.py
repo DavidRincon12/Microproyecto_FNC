@@ -45,23 +45,38 @@ class PruebasValidacionInicial(unittest.TestCase):
         self.assertTrue(resultado.es_valida)
         self.assertEqual(resultado.gramatica.cantidad_producciones(), 6)
 
-    def test_e8_reporta_los_tres_errores(self):
-        resultado = validar_gramatica("S, A", "a, b", "X", "S -> AD | aSc\nA -> a")
-        self.assertEqual(resultado.errores, [
-            "Error: el símbolo inicial X no pertenece al conjunto de variables.",
-            "Error: la variable D utilizada en la producción S -> AD no fue declarada.",
-            "Error: el símbolo c no fue declarado como terminal.",
+    def test_simbolos_no_declarados_se_descartan_sin_bloquear(self):
+        resultado = validar_gramatica("S, A", "a, b", "S", "S -> AD | aSc | aA\nA -> a | B\nB -> b")
+        self.assertTrue(resultado.es_valida)
+        self.assertEqual(resultado.producciones_descartadas, [
+            ("S", ("A", "D")), ("S", ("a", "S", "c")), ("A", ("B",)), ("B", ("b",)),
         ])
-        self.assertIsNone(resultado.gramatica)
+        self.assertEqual(resultado.gramatica.lineas_producciones(), ["S -> a A", "A -> a"])
+        self.assertIn("Advertencia: la producción S -> AD usa la variable D, que no fue declarada; "
+                      "se descarta por ser inútil.", resultado.advertencias)
+        self.assertIn("Advertencia: la producción S -> aSc usa el símbolo c, que no fue declarado "
+                      "como terminal; se descarta.", resultado.advertencias)
+        self.assertIn("Advertencia: la variable B no fue declarada; se descartan sus producciones.",
+                      resultado.advertencias)
+
+    def test_gramatica_ingresada_conserva_lo_escrito(self):
+        resultado = validar_gramatica("S", "a", "S", "S -> a | B\nB -> b")
+        self.assertEqual(resultado.gramatica_ingresada.lineas_producciones(), ["S -> B | a", "B -> b"])
+        self.assertEqual(resultado.gramatica.lineas_producciones(), ["S -> a"])
+
+    def test_inicial_no_declarado_es_advertencia(self):
+        resultado = validar_gramatica("S, A", "a", "X", "S -> a\nA -> a")
+        self.assertTrue(resultado.es_valida)
+        self.assertTrue(any("símbolo inicial X no pertenece" in a for a in resultado.advertencias))
 
     def test_componentes_vacios(self):
-        errores = validar_gramatica("", "", "", "").errores
-        self.assertEqual(errores, [
+        resultado = validar_gramatica("", "", "", "")
+        self.assertEqual(resultado.errores, [
             "Error: debe declarar al menos una variable.",
-            "Error: debe declarar al menos un terminal.",
             "Error: debe indicar el símbolo inicial.",
             "Error: debe registrar al menos una producción.",
         ])
+        self.assertEqual(resultado.advertencias, ["Advertencia: no se declaró ningún terminal."])
 
     def test_formatos_invalidos(self):
         errores = validar_gramatica("S, ab", "a, B, eps", "S", "S -> a").errores
@@ -69,14 +84,15 @@ class PruebasValidacionInicial(unittest.TestCase):
                       "mayúscula (ej.: S, A, B1).", errores)
         self.assertEqual(sum("no es válido" in error for error in errores), 2)
 
-    def test_errores_de_estructura(self):
-        errores = validar_gramatica("S", "a, b", "S", "S = aB\nS -> a | | b\nS -> aεb\naB -> b").errores
+    def test_errores_de_estructura_bloquean(self):
+        resultado = validar_gramatica("S", "a, b", "S", "S = aB\nS -> a | | b\nS -> aεb\naB -> b")
+        errores = resultado.errores
+        self.assertFalse(resultado.es_valida)
         self.assertIn("Error: la línea 1 ('S = aB') no tiene el símbolo '->'.", errores)
         self.assertIn("Error: la producción 'S -> a | | b' tiene una alternativa vacía; "
                       "use ε para la cadena vacía.", errores)
         self.assertIn("Error: en la producción S -> aεb, ε debe aparecer sola.", errores)
-        self.assertIn("Error: el lado izquierdo de la producción 'aB -> b' no es una variable declarada.",
-                      errores)
+        self.assertIn("Error: el lado izquierdo de la producción 'aB -> b' no es una variable válida.", errores)
 
     def test_advertencia_variable_sin_producciones(self):
         resultado = validar_gramatica("S, C", "a", "S", "S -> a")
