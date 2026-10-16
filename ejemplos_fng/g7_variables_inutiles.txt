@@ -1,0 +1,9 @@
+# G7: variables inútiles (depuración previa)
+VARIABLES: S, A, B, C
+TERMINALES: a, b
+INICIAL: S
+PRODUCCIONES:
+S -> AB | CC | a
+A -> a
+B -> b
+C -> CC

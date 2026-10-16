@@ -1,0 +1,7 @@
+# G3: recursividad izquierda directa
+VARIABLES: S, A
+TERMINALES: a, b
+INICIAL: S
+PRODUCCIONES:
+S -> SA | a
+A -> b

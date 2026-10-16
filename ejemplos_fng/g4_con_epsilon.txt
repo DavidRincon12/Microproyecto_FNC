@@ -1,0 +1,10 @@
+# G4: gramática con ε (salida del ejemplo E3 del Microproyecto 1)
+VARIABLES: S0, S, X1, X2, X3
+TERMINALES: a, b
+INICIAL: S0
+PRODUCCIONES:
+S0 -> ε | X1 X2 | X1 X3
+S -> X1 X2 | X1 X3
+X1 -> a
+X2 -> b
+X3 -> S X2

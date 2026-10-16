@@ -1,0 +1,8 @@
+# G2: solo sustitución regresiva
+VARIABLES: S, A, B
+TERMINALES: a, b
+INICIAL: S
+PRODUCCIONES:
+S -> AB | a
+A -> a
+B -> b

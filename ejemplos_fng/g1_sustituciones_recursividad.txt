@@ -1,0 +1,8 @@
+# G1: sustituciones sucesivas y recursividad izquierda
+VARIABLES: S, A, B
+TERMINALES: a, b
+INICIAL: S
+PRODUCCIONES:
+S -> AB
+A -> BS | b
+B -> SA | a

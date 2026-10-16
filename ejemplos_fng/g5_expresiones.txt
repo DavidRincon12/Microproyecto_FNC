@@ -1,0 +1,15 @@
+# G5: expresiones aritméticas (salida del ejemplo E4 del Microproyecto 1)
+VARIABLES: E, T, F, X1, X2, X3, X4, X5, X6, X7
+TERMINALES: +, *, (, ), a
+INICIAL: E
+PRODUCCIONES:
+E -> a | E X5 | T X6 | X1 X7
+T -> a | T X6 | X1 X7
+F -> a | X1 X7
+X1 -> (
+X2 -> )
+X3 -> +
+X4 -> *
+X5 -> X3 T
+X6 -> X4 F
+X7 -> E X2
