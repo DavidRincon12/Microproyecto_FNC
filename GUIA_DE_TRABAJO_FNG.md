@@ -204,7 +204,18 @@ def crear_paso(nombre: str, antes: Gramatica, despues: Gramatica,
                elementos: dict[str, list[str]], observaciones: list[str] | None = None) -> Paso:
     """Arma un Paso con eliminadas/agregadas calculadas por calcular_cambios.
     TODOS los pasos nuevos del Microproyecto 2 se crean con esta función."""
+
+def aplicar_sustitucion(gramatica: Gramatica, variable: str, cuerpo: Cuerpo) -> str:
+    """MODIFICA `gramatica` (úsenla sobre la copia de trabajo): quita `variable -> cuerpo` y agrega
+    los cuerpos con la primera variable reemplazada por todas sus producciones.
+    Devuelve el texto para "Sustituciones realizadas", p. ej. "B -> S A  ⇒  B -> A B A".
+    Es LA operación de sustitución de las fases 1, 2 y 3: así el historial sale igual en todas."""
+
+def texto_sustitucion(variable: str, cuerpo: Cuerpo, nuevos: list[Cuerpo]) -> str: ...  # formato de 5.5
+def empieza_con_variable(gramatica: Gramatica, cuerpo: Cuerpo) -> bool: ...              # cuerpo ≠ ε y 1.º símbolo variable
 ```
+
+> **Ya está en `main`**, con sus pruebas en `pruebas/test_fng_utilidades.py`. Los 7 ejemplos también están en `ejemplos_fng/`.
 
 ### 5.4 Funciones de los algoritmos
 
