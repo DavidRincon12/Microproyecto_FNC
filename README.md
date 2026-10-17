@@ -120,18 +120,22 @@ Se sigue el algoritmo clásico de Hopcroft y Ullman y cada etapa se muestra como
 
 ### 5.2 Formato de entrada
 
-Es el mismo del Microproyecto 1 (campos o archivo `.txt`), con un campo **opcional** adicional, «Orden de las variables», que es una lista separada por comas (por ejemplo `B, A, S`). Las variables que no se escriban se agregan al final en el orden por defecto, y las que no existan se ignoran con una advertencia.
+Es el mismo del Microproyecto 1 (campos o archivo `.txt`), con un campo **opcional** adicional, «Orden de las variables», que es una lista separada por comas (por ejemplo `C, B, A, S`). Las variables que no se escriban se agregan al final en el orden por defecto, y las que no existan se ignoran con una advertencia. En los archivos, el orden va en una línea `ORDEN:` antes de `PRODUCCIONES`.
 
 ```text
-# G1: sustituciones sucesivas y recursividad izquierda
-VARIABLES: S, A, B
-TERMINALES: a, b
+# G8: G1 con orden personalizado
+VARIABLES: S, A, B, C
+TERMINALES: a, b, c
 INICIAL: S
+ORDEN: C, B, A, S
 PRODUCCIONES:
-S -> AB
-A -> BS | b
-B -> SA | a
+S -> AB | b
+A -> BC | a
+B -> SA | b
+C -> AS | c
 ```
+
+Si la gramática no está en FNC, al validarla la aplicación pregunta si se desea convertir primero con el Microproyecto 1.
 
 ### 5.3 Ejecución
 
@@ -153,15 +157,14 @@ El Microproyecto 1 se sigue ejecutando igual (`python main.py`, `dist/DepuradorF
 
 | Archivo | Qué ilustra |
 |---|---|
-| `g1_sustituciones_recursividad.txt` | Sustituciones sucesivas y recursividad izquierda (ejemplo clásico de Hopcroft y Ullman) |
-| `g2_sustitucion_regresiva.txt` | Solo sustitución regresiva |
-| `g3_recursividad_directa.txt` | Recursividad izquierda directa |
-| `g4_con_epsilon.txt` | Inicial con $S_0 \to \varepsilon$ (salida del ejemplo E3 del Microproyecto 1) |
-| `g5_expresiones.txt` | Expresiones aritméticas (salida del ejemplo E4 del Microproyecto 1) |
-| `g6_no_fnc.txt` | Gramática que no está en FNC: se rechaza y se ofrece convertirla primero |
-| `g7_variables_inutiles.txt` | Variables inútiles eliminadas en la depuración previa |
-
-La gramática G1 con el orden `B, A, S` sirve para mostrar que el orden elegido cambia la gramática resultante, aunque el lenguaje sea el mismo.
+| `g1_sustituciones_recursividad.txt` | Recursividad izquierda indirecta: sustituciones sucesivas $B \to SA \to ABA \to BCBA$ |
+| `g2_sustitucion_regresiva.txt` | Cinco variables sin recursividad: la fase 2 hace casi todo el trabajo |
+| `g3_recursividad_directa.txt` | Recursividad izquierda directa en las tres variables (tres variables auxiliares) |
+| `g4_con_epsilon.txt` | Gramática general con $\varepsilon$ ($S \to aSb \mid bSa \mid SS \mid \varepsilon$); pasa antes por el Microproyecto 1 |
+| `g5_expresiones.txt` | Expresiones con suma, resta, producto, paréntesis y signo negativo; pasa antes por el Microproyecto 1 |
+| `g6_no_fnc.txt` | Gramática general con símbolos no declarados ($B$, $Q$), $\varepsilon$, unitarias y variables inútiles |
+| `g7_variables_inutiles.txt` | Variables inútiles e inalcanzables y símbolos no declarados en la depuración previa |
+| `g8_orden_personalizado.txt` | G1 con el orden `C, B, A, S`: otra gramática resultante con el mismo lenguaje |
 
 ### 5.5 Verificación de la equivalencia
 
@@ -175,8 +178,9 @@ Las pruebas comprueban que la gramática final genera exactamente las mismas cad
 ```text
 ├── main_fng.py                     Punto de entrada del Microproyecto 2
 ├── construir_exe_fng.bat           Script de generación de ConversorFNG.exe
-├── ejemplos_fng/                   Gramáticas de prueba G1 a G7
+├── ejemplos_fng/                   Gramáticas de prueba G1 a G8
 ├── fng/
+│   ├── archivo.py                  Lectura y guardado de archivos (con la línea ORDEN)
 │   ├── utilidades.py               Sustitución de la primera variable y armado de pasos
 │   ├── validacion/
 │   │   ├── entrada.py              Validación de la entrada (escritura, símbolos y FNC)

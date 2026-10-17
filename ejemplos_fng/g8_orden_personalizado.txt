@@ -1,0 +1,11 @@
+# G8: G1 con orden personalizado
+# Orden C, B, A, S: otra gramática resultante, el mismo lenguaje.
+VARIABLES: S, A, B, C
+TERMINALES: a, b, c
+INICIAL: S
+ORDEN: C, B, A, S
+PRODUCCIONES:
+S -> AB | b
+A -> BC | a
+B -> SA | b
+C -> AS | c

@@ -1,9 +1,13 @@
-# G7: variables inútiles (depuración previa)
-VARIABLES: S, A, B, C
-TERMINALES: a, b
+# G7: variables inútiles e inalcanzables
+# C y E no generan, D y A quedan inalcanzables y se descartan F y z (no declarados).
+VARIABLES: S, A, B, C, D, E
+TERMINALES: a, b, c
 INICIAL: S
 PRODUCCIONES:
-S -> AB | CC | a
-A -> a
-B -> b
-C -> CC
+S -> AB | CS | a
+A -> AC | a
+B -> BB | SB | b | bz
+C -> CD | DE
+D -> a | DA
+E -> ED | EE
+F -> a

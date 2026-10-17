@@ -1,7 +1,9 @@
 # G3: recursividad izquierda directa
-VARIABLES: S, A
-TERMINALES: a, b
+# Recursividad directa en las tres variables: se crean tres variables auxiliares.
+VARIABLES: S, A, B
+TERMINALES: a, b, c
 INICIAL: S
 PRODUCCIONES:
-S -> SA | a
-A -> b
+S -> SA | BS | a
+A -> AB | b
+B -> BA | c

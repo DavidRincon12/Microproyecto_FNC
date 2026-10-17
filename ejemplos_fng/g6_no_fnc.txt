@@ -1,8 +1,10 @@
-# G6: gramática que no está en Forma Normal de Chomsky
-VARIABLES: S, A, B
-TERMINALES: a, b
-INICIAL: S
+# G6: general con símbolos no declarados
+# B y Q no están declarados, C -> ε, producciones unitarias y variables inútiles (F, G).
+VARIABLES: C, D, E, F, G
+TERMINALES: 0, 1, 2
+INICIAL: E
 PRODUCCIONES:
-S -> aB | A
-A -> a
-B -> b c
+B -> CD1 | C | 0
+C -> D1D2 | D | 1 | ε
+D -> C2 | B | 2 | DQ
+E -> FG | D0 | D

@@ -1,10 +1,7 @@
-# G4: gramática con ε (salida del ejemplo E3 del Microproyecto 1)
-VARIABLES: S0, S, X1, X2, X3
+# G4: gramática general con ε
+# No está en FNC: primero se convierte con el Microproyecto 1 (S0 -> ε se conserva).
+VARIABLES: S
 TERMINALES: a, b
-INICIAL: S0
+INICIAL: S
 PRODUCCIONES:
-S0 -> ε | X1 X2 | X1 X3
-S -> X1 X2 | X1 X3
-X1 -> a
-X2 -> b
-X3 -> S X2
+S -> aSb | bSa | SS | ε
