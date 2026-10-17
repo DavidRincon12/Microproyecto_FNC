@@ -57,6 +57,7 @@ class ProcesoFNG:
 
         resultado = validar_entrada(*texto_ingresado)
         self._errores_fnc = resultado.errores_fnc
+        self._advertencias = list(resultado.advertencias)
         if not resultado.es_valida:
             return resultado.errores
 
@@ -93,6 +94,13 @@ class ProcesoFNG:
     def errores_son_de_fnc(self) -> bool:
         """True si la gramática está bien escrita y lo único que falla es la FNC."""
         return bool(self._errores_fnc)
+
+    def advertencias(self) -> list[str]:
+        """Advertencias de la última validación (símbolos no declarados que se descartaron).
+
+        Se conservan aunque la gramática no esté en FNC, para avisarlas antes de convertirla.
+        """
+        return list(self._advertencias)
 
     def hay_siguiente_paso(self) -> bool:
         return self.gramatica_es_valida() and not self._terminado
@@ -150,6 +158,7 @@ class ProcesoFNG:
         self._texto_ingresado: tuple[str, str, str, str] | None = None
         self._orden_usuario: list[str] = []
         self._errores_fnc: list[str] = []
+        self._advertencias: list[str] = []
         self._gramatica_original: Gramatica | None = None
         self._gramatica_actual: Gramatica | None = None
         self._gramatica_final: Gramatica | None = None
@@ -163,7 +172,7 @@ class ProcesoFNG:
         """Convierte lo ingresado a FNC con el proceso del Microproyecto 1.
 
         Deja ingresada la gramática resultante (conservando el orden escrito) y devuelve
-        sus textos para mostrarlos en el formulario.
+        sus textos, incluido el orden, para mostrarlos en el formulario.
         """
         if self._texto_ingresado is None:
             raise ErrorProcesoFNG("Primero debe ingresar una gramática.")
@@ -183,9 +192,10 @@ class ProcesoFNG:
             "terminales": ", ".join(gramatica.terminales),
             "inicial": gramatica.simbolo_inicial,
             "producciones": "\n".join(gramatica.lineas_producciones()),
+            "orden": ", ".join(orden_usuario),
         }
         self.ingresar_gramatica(textos["variables"], textos["terminales"], textos["inicial"],
-                                textos["producciones"], ", ".join(orden_usuario))
+                                textos["producciones"], textos["orden"])
         return textos
 
     # ----------------------------------------------------------------- internos

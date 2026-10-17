@@ -6,8 +6,11 @@ import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 from tkinter.scrolledtext import ScrolledText
 
-from fnc.entrada.lector import guardar_archivo, leer_archivo, leer_simbolos
+from fnc.entrada.lector import leer_simbolos
+from fng.archivo import guardar_archivo_fng, leer_archivo_fng
 from fng.proceso_fng import ErrorProcesoFNG, ProcesoFNG
+
+CARPETA_EJEMPLOS = "ejemplos_fng"
 
 
 def ruta_recurso(relativa: str) -> str:
@@ -19,6 +22,25 @@ def ruta_recurso(relativa: str) -> str:
     return os.path.join(base, relativa)
 
 
+def listar_ejemplos() -> dict[str, str]:
+    """{"G1 · descripción": ruta} con los .txt de ejemplos_fng, tomando la descripción de su primera línea."""
+    carpeta = ruta_recurso(CARPETA_EJEMPLOS)
+    if not os.path.isdir(carpeta):
+        return {}
+    ejemplos: dict[str, str] = {}
+    for nombre in sorted(os.listdir(carpeta)):
+        if not nombre.endswith(".txt"):
+            continue
+        ruta = os.path.join(carpeta, nombre)
+        with open(ruta, encoding="utf-8-sig") as archivo:
+            primera = archivo.readline().strip()
+        clave, _, descripcion = primera.lstrip("# ").partition(":")
+        if not descripcion:
+            clave, descripcion = nombre[:2].upper(), nombre[3:-4].replace("_", " ")
+        ejemplos[f"{clave.strip()} · {descripcion.strip()}"] = ruta
+    return ejemplos
+
+
 class VentanaFNG(tk.Tk):
     """Ventana principal del aplicativo de Conversión de FNC a FNG."""
 
@@ -26,7 +48,7 @@ class VentanaFNG(tk.Tk):
         super().__init__()
         self.title("Conversión de FNC a Forma Normal de Greibach")
         self.minsize(1050, 700)
-        self.geometry("1120, 740")
+        self.geometry("1120x740")
 
         self.proceso = ProcesoFNG()
 
@@ -116,14 +138,16 @@ class VentanaFNG(tk.Tk):
         btn_guardar = ttk.Button(frame_utilidades, text="Guardar...", command=self._guardar_archivo, width=9)
         btn_guardar.pack(side=tk.LEFT, padx=2)
 
-        ttk.Label(frame_utilidades, text="Ejemplo:").pack(side=tk.LEFT, padx=(8, 2))
+        frame_ejemplos = ttk.Frame(grupo_entrada)
+        frame_ejemplos.grid(row=8, column=0, columnspan=2, sticky=tk.EW, pady=(6, 0))
+        ttk.Label(frame_ejemplos, text="Ejemplo:").pack(side=tk.LEFT, padx=(0, 4))
+        self.ejemplos = listar_ejemplos()
         self.combo_ejemplos = ttk.Combobox(
-            frame_utilidades,
-            values=["G1", "G2", "G3", "G4", "G5", "G6", "G7"],
-            width=5,
+            frame_ejemplos,
+            values=list(self.ejemplos),
             state="readonly",
         )
-        self.combo_ejemplos.pack(side=tk.LEFT)
+        self.combo_ejemplos.pack(side=tk.LEFT, fill=tk.X, expand=True)
         self.combo_ejemplos.bind("<<ComboboxSelected>>", self._cargar_ejemplo_seleccionado)
 
         grupo_entrada.columnconfigure(1, weight=1)
@@ -315,33 +339,18 @@ class VentanaFNG(tk.Tk):
         self.texto_producciones.focus_set()
 
     def _cargar_ejemplo_seleccionado(self, *_) -> None:
-        seleccion = self.combo_ejemplos.get().lower()
-        nombres = {
-            "g1": "g1_sustituciones_recursividad.txt",
-            "g2": "g2_sustitucion_regresiva.txt",
-            "g3": "g3_recursividad_directa.txt",
-            "g4": "g4_con_epsilon.txt",
-            "g5": "g5_expresiones.txt",
-            "g6": "g6_no_fnc.txt",
-            "g7": "g7_variables_inutiles.txt",
-        }
-        archivo = nombres.get(seleccion)
-        if not archivo:
+        seleccion = self.combo_ejemplos.get()
+        ruta = self.ejemplos.get(seleccion)
+        if not ruta:
             return
-
-        ruta = ruta_recurso(os.path.join("ejemplos_fng", archivo))
         if not os.path.exists(ruta):
-            ruta = os.path.join("ejemplos_fng", archivo)
-
-        if os.path.exists(ruta):
-            try:
-                datos = leer_archivo(ruta)
-                self._cargar_datos_en_formulario(datos)
-                self.lbl_estado.config(text=f"Ejemplo {seleccion.upper()} cargado.")
-            except Exception as e:
-                messagebox.showerror("Error al cargar", f"No se pudo cargar el ejemplo: {e}")
-        else:
             messagebox.showwarning("Archivo no encontrado", f"No se encontró: {ruta}")
+            return
+        try:
+            self._cargar_datos_en_formulario(leer_archivo_fng(ruta))
+            self.lbl_estado.config(text=f"Ejemplo {seleccion.split(' · ')[0]} cargado.")
+        except Exception as e:
+            messagebox.showerror("Error al cargar", f"No se pudo cargar el ejemplo: {e}")
 
     def _abrir_archivo(self) -> None:
         ruta = filedialog.askopenfilename(
@@ -351,7 +360,7 @@ class VentanaFNG(tk.Tk):
         if not ruta:
             return
         try:
-            datos = leer_archivo(ruta)
+            datos = leer_archivo_fng(ruta)
             self._cargar_datos_en_formulario(datos)
             self.lbl_estado.config(text=f"Archivo '{os.path.basename(ruta)}' cargado.")
         except Exception as e:
@@ -370,9 +379,10 @@ class VentanaFNG(tk.Tk):
             "terminales": self.var_terminales.get().strip(),
             "inicial": self.var_inicial.get().strip(),
             "producciones": self.texto_producciones.get("1.0", tk.END).strip(),
+            "orden": self.var_orden.get().strip(),
         }
         try:
-            guardar_archivo(ruta, datos)
+            guardar_archivo_fng(ruta, datos)
             messagebox.showinfo("Guardado", f"Guardado en:\n{ruta}")
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo guardar: {e}")
@@ -427,19 +437,41 @@ class VentanaFNG(tk.Tk):
     def _accion_validar(self) -> None:
         self._accion_registrar()
         errores = self.proceso.validar()
+        advertencias = self.proceso.advertencias()
         if errores:
             mensaje = "\n".join(errores)
-            self._actualizar_texto(self.texto_paso, f"Errores de validación:\n\n{mensaje}")
+            texto = f"Errores de validación:\n\n{mensaje}"
+            if advertencias:
+                texto += "\n\nAdvertencias:\n\n" + "\n".join(advertencias)
+            self._actualizar_texto(self.texto_paso, texto)
             self.notebook.select(self.tab_paso)
             self.lbl_estado.config(text="La gramática contiene errores.")
-            messagebox.showwarning("Atención", f"La gramática no puede procesarse:\n\n{mensaje}")
+            self._actualizar_estado_botones()
+            if self.proceso.errores_son_de_fnc():
+                # La gramática está bien escrita pero no en FNC: se ofrece el Microproyecto 1.
+                aviso = "\n\nAdvertencias:\n" + "\n".join(advertencias) if advertencias else ""
+                if messagebox.askyesno(
+                    "La gramática no está en FNC",
+                    f"{mensaje}{aviso}\n\n¿Desea convertirla primero a FNC con el Microproyecto 1?",
+                ):
+                    self._accion_convertir_primero_a_fnc()
+                    return
+            else:
+                messagebox.showwarning("Atención", f"La gramática no puede procesarse:\n\n{mensaje}")
         else:
             pasos = self.proceso.historial().pasos
             texto_res = "\n\n".join(p.a_texto() for p in pasos)
             self._actualizar_texto(self.texto_paso, texto_res)
             self._actualizar_texto(self.texto_historial, self.proceso.historial().a_texto())
             self.notebook.select(self.tab_paso)
-            self.lbl_estado.config(text="Gramática en FNC válida. Puede iniciar la conversión a FNG.")
+            if advertencias:
+                self.lbl_estado.config(text="Gramática en FNC validada con advertencias. Puede iniciar la conversión.")
+                messagebox.showwarning(
+                    "Advertencias de validación",
+                    "La gramática se puede procesar, pero se encontró lo siguiente:\n\n" + "\n".join(advertencias),
+                )
+            else:
+                self.lbl_estado.config(text="Gramática en FNC válida. Puede iniciar la conversión a FNG.")
 
         self._actualizar_estado_botones()
 
