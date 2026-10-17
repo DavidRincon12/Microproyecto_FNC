@@ -1,7 +1,7 @@
 import unittest
 
-from pruebas.utilidades_pruebas import gramatica_desde_lineas
-from pruebas.utilidades_pruebas_fng import cadenas_fnc, cadenas_fng, comparar_lenguajes, texto_cadena
+from utilidades_pruebas import gramatica_desde_lineas
+from utilidades_pruebas_fng import cadenas_fnc, cadenas_fng, comparar_lenguajes, texto_cadena
 
 # L = { a^n b^n : n ≥ 1 } en las dos formas normales
 ANBN_FNC = """
