@@ -3,6 +3,8 @@
 Microproyecto #1 — Teoría de la Computación (2026-II)  
 Universidad Francisco de Paula Santander (UFPS)
 
+> Este repositorio contiene los dos microproyectos de la materia. El **Microproyecto 2** (conversión a Forma Normal de Greibach) reutiliza el modelo y los algoritmos del Microproyecto 1; está descrito en la [sección 5](#5-microproyecto-2-conversión-a-forma-normal-de-greibach).
+
 ---
 
 ## 1. Descripción General
@@ -95,4 +97,97 @@ Microproyecto_FNC/
 │   └── interfaz/                   Interfaz gráfica de usuario con Tkinter
 │       └── ventana_principal.py
 └── pruebas/                        Suite de pruebas unitarias (unittest)
+```
+
+---
+
+## 5. Microproyecto 2: Conversión a Forma Normal de Greibach
+
+### 5.1 Descripción
+
+El segundo aplicativo recibe una gramática en **Forma Normal de Chomsky (FNC)** y la transforma en una gramática equivalente en **Forma Normal de Greibach (FNG)**, donde toda producción tiene la forma $A \to a\,B_1 B_2 \dots B_k$ ($k \ge 0$): un terminal seguido únicamente de variables. Se admite $S \to \varepsilon$ solo para el símbolo inicial.
+
+Se sigue el algoritmo clásico de Hopcroft y Ullman y cada etapa se muestra como un paso del historial (gramática antes y después, elementos identificados, producciones eliminadas y agregadas):
+
+1. **Validación de la gramática:** misma política del Microproyecto 1. Solo detienen el proceso los errores de escritura; las producciones con símbolos no declarados se descartan con una advertencia.
+2. **Validación de la FNC:** cada producción fuera de la FNC es un error. La aplicación ofrece **«Convertir primero a FNC»**, que aplica el Microproyecto 1 a la gramática ingresada.
+3. **Depuración previa:** eliminación de variables inútiles e inalcanzables (algoritmos del Microproyecto 1).
+4. **Ordenamiento de variables** $A_1, A_2, \dots, A_n$: por defecto el inicial primero y luego el orden de declaración; el usuario puede indicar otro. Si el inicial tiene $S \to \varepsilon$, esa producción se aparta y se reincorpora al final.
+5. **Fase 1, hacia adelante:** para cada $A_i$ se sustituyen las producciones $A_i \to A_j\gamma$ con $j < i$, y luego se elimina la recursividad izquierda directa ($A \to A\alpha$) creando una variable auxiliar $A'$.
+6. **Fase 2, sustitución regresiva:** desde $A_{n-1}$ hasta $A_1$, toda producción que empieza con una variable se sustituye hasta empezar con un terminal.
+7. **Fase 3, variables auxiliares:** las producciones de las variables auxiliares se llevan a la misma forma.
+8. **Verificación, limpieza final y validación de la FNG:** se comprueba que después del terminal solo haya variables, se eliminan las variables que quedaron inalcanzables y se valida el resultado.
+
+### 5.2 Formato de entrada
+
+Es el mismo del Microproyecto 1 (campos o archivo `.txt`), con un campo **opcional** adicional, «Orden de las variables», que es una lista separada por comas (por ejemplo `B, A, S`). Las variables que no se escriban se agregan al final en el orden por defecto, y las que no existan se ignoran con una advertencia.
+
+```text
+# G1: sustituciones sucesivas y recursividad izquierda
+VARIABLES: S, A, B
+TERMINALES: a, b
+INICIAL: S
+PRODUCCIONES:
+S -> AB
+A -> BS | b
+B -> SA | a
+```
+
+### 5.3 Ejecución
+
+```bash
+# Aplicación del Microproyecto 2
+python main_fng.py          # Windows: py main_fng.py
+python3 main_fng.py         # Linux / macOS
+
+# Ejecutable para Windows (genera dist/ConversorFNG.exe)
+construir_exe_fng.bat
+
+# Pruebas de los dos microproyectos
+python -m unittest discover -s pruebas -v
+```
+
+El Microproyecto 1 se sigue ejecutando igual (`python main.py`, `dist/DepuradorFNC.exe`).
+
+### 5.4 Gramáticas de ejemplo (`ejemplos_fng/`)
+
+| Archivo | Qué ilustra |
+|---|---|
+| `g1_sustituciones_recursividad.txt` | Sustituciones sucesivas y recursividad izquierda (ejemplo clásico de Hopcroft y Ullman) |
+| `g2_sustitucion_regresiva.txt` | Solo sustitución regresiva |
+| `g3_recursividad_directa.txt` | Recursividad izquierda directa |
+| `g4_con_epsilon.txt` | Inicial con $S_0 \to \varepsilon$ (salida del ejemplo E3 del Microproyecto 1) |
+| `g5_expresiones.txt` | Expresiones aritméticas (salida del ejemplo E4 del Microproyecto 1) |
+| `g6_no_fnc.txt` | Gramática que no está en FNC: se rechaza y se ofrece convertirla primero |
+| `g7_variables_inutiles.txt` | Variables inútiles eliminadas en la depuración previa |
+
+La gramática G1 con el orden `B, A, S` sirve para mostrar que el orden elegido cambia la gramática resultante, aunque el lenguaje sea el mismo.
+
+### 5.5 Verificación de la equivalencia
+
+Las pruebas comprueban que la gramática final genera exactamente las mismas cadenas que la de entrada hasta una longitud dada (`pruebas/utilidades_pruebas_fng.py`):
+
+- Para la gramática en FNC, las cadenas se calculan con la programación dinámica del algoritmo CYK.
+- Para la gramática en FNG, se usan derivaciones por la izquierda. Cada paso agrega exactamente un terminal, así que la búsqueda siempre termina.
+
+### 5.6 Estructura del código
+
+```text
+├── main_fng.py                     Punto de entrada del Microproyecto 2
+├── construir_exe_fng.bat           Script de generación de ConversorFNG.exe
+├── ejemplos_fng/                   Gramáticas de prueba G1 a G7
+├── fng/
+│   ├── utilidades.py               Sustitución de la primera variable y armado de pasos
+│   ├── validacion/
+│   │   ├── entrada.py              Validación de la entrada (escritura, símbolos y FNC)
+│   │   └── greibach.py             Validación de la Forma Normal de Greibach
+│   ├── algoritmos/
+│   │   ├── orden.py                Ordenamiento de variables y ε del inicial
+│   │   ├── sustitucion.py          Fase 1: sustituciones hacia adelante
+│   │   ├── recursividad.py         Fase 1: eliminación de recursividad izquierda
+│   │   └── terminales.py           Fases 2 y 3 y verificación
+│   ├── proceso_fng.py              Controlador del flujo (ProcesoFNG)
+│   └── interfaz/
+│       └── ventana_fng.py          Interfaz gráfica con Tkinter
+└── pruebas/test_fng_*.py           Pruebas del Microproyecto 2
 ```
