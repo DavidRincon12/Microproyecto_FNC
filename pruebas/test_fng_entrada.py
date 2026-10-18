@@ -17,7 +17,7 @@ class PruebasValidacionEntrada(unittest.TestCase):
         self.assertTrue(resultado.es_valida)
         self.assertEqual(resultado.errores_fnc, [])
         self.assertEqual(resultado.gramatica.lineas_producciones(),
-                         ["S -> b | A B", "A -> a | B C", "B -> b | S A", "C -> c | A S"])
+                         ["S -> 1 | A B", "A -> 0 | B C", "B -> 1 | S A", "C -> 2 | A S"])
 
     def test_epsilon_del_inicial_es_valida(self):
         resultado = validar_entrada("S0, S, A, B", "a, b", "S0", "S0 -> ε | A B\nS -> A B\nA -> a\nB -> b | S B")

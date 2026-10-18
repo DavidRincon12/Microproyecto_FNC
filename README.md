@@ -125,14 +125,14 @@ Es el mismo del Microproyecto 1 (campos o archivo `.txt`), con un campo **opcion
 ```text
 # G8: G1 con orden personalizado
 VARIABLES: S, A, B, C
-TERMINALES: a, b, c
+TERMINALES: 0, 1, 2
 INICIAL: S
 ORDEN: C, B, A, S
 PRODUCCIONES:
-S -> AB | b
-A -> BC | a
-B -> SA | b
-C -> AS | c
+S -> AB | 1
+A -> BC | 0
+B -> SA | 1
+C -> AS | 2
 ```
 
 Si la gramática no está en FNC, al validarla la aplicación pregunta si se desea convertir primero con el Microproyecto 1.
@@ -155,16 +155,19 @@ El Microproyecto 1 se sigue ejecutando igual (`python main.py`, `dist/DepuradorF
 
 ### 5.4 Gramáticas de ejemplo (`ejemplos_fng/`)
 
+Todas usan dígitos como terminales. Cuatro de ellas (G4, G5, G6 y G9) no están en FNC y muestran el recorrido completo: primero se convierten a Chomsky con el Microproyecto 1 y después a Greibach.
+
 | Archivo | Qué ilustra |
 |---|---|
 | `g1_sustituciones_recursividad.txt` | Recursividad izquierda indirecta: sustituciones sucesivas $B \to SA \to ABA \to BCBA$ |
 | `g2_sustitucion_regresiva.txt` | Cinco variables sin recursividad: la fase 2 hace casi todo el trabajo |
 | `g3_recursividad_directa.txt` | Recursividad izquierda directa en las tres variables (tres variables auxiliares) |
-| `g4_con_epsilon.txt` | Gramática general con $\varepsilon$ ($S \to aSb \mid bSa \mid SS \mid \varepsilon$); pasa antes por el Microproyecto 1 |
-| `g5_expresiones.txt` | Expresiones con suma, resta, producto, paréntesis y signo negativo; pasa antes por el Microproyecto 1 |
+| `g4_con_epsilon.txt` | Gramática general con $\varepsilon$ ($S \to 0S1 \mid 1S0 \mid SS \mid \varepsilon$); pasa antes por el Microproyecto 1 |
+| `g5_expresiones.txt` | Expresiones con los operadores escritos como dígitos (0 suma, 1 producto, 2 y 3 paréntesis, 4 operando); pasa antes por el Microproyecto 1 |
 | `g6_no_fnc.txt` | Gramática general con símbolos no declarados ($B$, $Q$), $\varepsilon$, unitarias y variables inútiles |
 | `g7_variables_inutiles.txt` | Variables inútiles e inalcanzables y símbolos no declarados en la depuración previa |
 | `g8_orden_personalizado.txt` | G1 con el orden `C, B, A, S`: otra gramática resultante con el mismo lenguaje |
+| `g9_ceros_y_unos.txt` | Cadenas con tantos 0 como 1 (gramática clásica); pasa antes por el Microproyecto 1 |
 
 ### 5.5 Verificación de la equivalencia
 
@@ -178,7 +181,7 @@ Las pruebas comprueban que la gramática final genera exactamente las mismas cad
 ```text
 ├── main_fng.py                     Punto de entrada del Microproyecto 2
 ├── construir_exe_fng.bat           Script de generación de ConversorFNG.exe
-├── ejemplos_fng/                   Gramáticas de prueba G1 a G8
+├── ejemplos_fng/                   Gramáticas de prueba G1 a G9
 ├── fng/
 │   ├── archivo.py                  Lectura y guardado de archivos (con la línea ORDEN)
 │   ├── utilidades.py               Sustitución de la primera variable y armado de pasos

@@ -1,10 +1,10 @@
 # G1: recursividad izquierda indirecta
 # Sustituciones sucesivas en B: B -> S A -> A B A -> B C B A.
 VARIABLES: S, A, B, C
-TERMINALES: a, b, c
+TERMINALES: 0, 1, 2
 INICIAL: S
 PRODUCCIONES:
-S -> AB | b
-A -> BC | a
-B -> SA | b
-C -> AS | c
+S -> AB | 1
+A -> BC | 0
+B -> SA | 1
+C -> AS | 2

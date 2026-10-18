@@ -1,9 +1,9 @@
-# G5: expresiones aritméticas
-# Suma, resta, producto, paréntesis y signo negativo. No está en FNC.
+# G5: expresiones con operadores (pasa por Chomsky)
+# 0 hace de suma, 1 de producto, 2 y 3 de paréntesis y 4 de operando. No está en FNC.
 VARIABLES: E, T, F
-TERMINALES: +, -, *, (, ), n
+TERMINALES: 0, 1, 2, 3, 4
 INICIAL: E
 PRODUCCIONES:
-E -> E+T | E-T | T
-T -> T*F | F
-F -> (E) | n | -F
+E -> E0T | T
+T -> T1F | F
+F -> 2E3 | 4

@@ -1,11 +1,11 @@
 # G2: sustitución regresiva
 # Sin recursividad; la fase 2 hace casi todo el trabajo (S -> A -> B -> C -> D).
 VARIABLES: S, A, B, C, D
-TERMINALES: a, b, c, d
+TERMINALES: 0, 1, 2, 3
 INICIAL: S
 PRODUCCIONES:
-S -> AB | CD | a
-A -> BD | CA | a
-B -> CD | DB | b
-C -> DA | c
-D -> d
+S -> AB | CD | 0
+A -> BD | CA | 0
+B -> CD | DB | 1
+C -> DA | 2
+D -> 3

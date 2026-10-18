@@ -14,10 +14,11 @@ ARCHIVOS = {
     "G6": "g6_no_fnc.txt",
     "G7": "g7_variables_inutiles.txt",
     "G8": "g8_orden_personalizado.txt",
+    "G9": "g9_ceros_y_unos.txt",
 }
 
-# G4, G5 y G6 no están en FNC: primero pasan por el Microproyecto 1.
-GENERALES = {"G4", "G5", "G6"}
+# G4, G5, G6 y G9 no están en FNC: primero pasan por el Microproyecto 1.
+GENERALES = {"G4", "G5", "G6", "G9"}
 
 # (número total de pasos, número de producciones de la gramática final)
 ESPERADOS = {
@@ -25,29 +26,37 @@ ESPERADOS = {
     "G2": (15, 22),
     "G3": (16, 18),
     "G4": (17, 51),
-    "G5": (24, 53),
+    "G5": (22, 36),
     "G6": (20, 54),
     "G7": (14, 17),
     "G8": (15, 46),
+    "G9": (17, 14),
 }
 
 FINALES = {
     "G2": [
-        "S -> a | a B | c D | b D B | c A B | d A D | c D D B | d A A B | d B D B | d A D D B",
-        "A -> a | b D | c A | c D D | d A A | d B D | d A D D",
-        "B -> b | c D | d B | d A D",
-        "D -> d",
+        "S -> 0 | 0 B | 2 D | 1 D B | 2 A B | 3 A D | 2 D D B | 3 A A B | 3 B D B | 3 A D D B",
+        "A -> 0 | 1 D | 2 A | 2 D D | 3 A A | 3 B D | 3 A D D",
+        "B -> 1 | 2 D | 3 B | 3 A D",
+        "D -> 3",
     ],
     "G3": [
-        "S -> a | a S' | c S | c B' S | c S S' | c B' S S'",
-        "S' -> b | b A' | b S' | b A' S'",
-        "A' -> c | c A' | c B' | c B' A'",
-        "B' -> b | b A' | b B' | b A' B'",
+        "S -> 0 | 0 S' | 2 S | 2 B' S | 2 S S' | 2 B' S S'",
+        "S' -> 1 | 1 A' | 1 S' | 1 A' S'",
+        "A' -> 2 | 2 A' | 2 B' | 2 B' A'",
+        "B' -> 1 | 1 A' | 1 B' | 1 A' B'",
     ],
     "G7": [
-        "S -> a | a B",
-        "B -> b | a B | b B' | a B B | a B B' | a B B B'",
-        "B' -> b | a B | b B' | a B B | a B B' | b B' B' | a B B B' | a B B' B' | a B B B' B'",
+        "S -> 0 | 0 B",
+        "B -> 1 | 0 B | 1 B' | 0 B B | 0 B B' | 0 B B B'",
+        "B' -> 1 | 0 B | 1 B' | 0 B B | 0 B B' | 1 B' B' | 0 B B B' | 0 B B' B' | 0 B B B' B'",
+    ],
+    "G9": [
+        "S -> 0 B | 1 A",
+        "A -> 0 | 0 S | 1 X3",
+        "B -> 1 | 0 X4 | 1 S",
+        "X3 -> 0 A | 0 S A | 1 X3 A",
+        "X4 -> 1 B | 0 X4 B | 1 S B",
     ],
 }
 
@@ -86,7 +95,7 @@ class PruebasResultadosDeLosEjemplos(unittest.TestCase):
         proceso.ejecutar_todo()
         self.assertEqual(proceso.orden_variables(), ["C", "B", "A", "S"])
         self.assertEqual(proceso.gramatica_final().lineas_producciones()[0],
-                         "S -> b | a B | b S' | a B S' | b C B | b C B S'")
+                         "S -> 1 | 0 B | 1 S' | 0 B S' | 1 C B | 1 C B S'")
 
     def test_nombres_de_los_pasos_de_g1(self):
         proceso = proceso_con_ejemplo("G1")
@@ -123,8 +132,8 @@ class PruebasResultadosDeLosEjemplos(unittest.TestCase):
         proceso.ejecutar_todo()
         pasos = {paso.nombre: paso for paso in proceso.historial().pasos}
         self.assertEqual(pasos["Fase 1 · A3 = B: sustituciones"].elementos_identificados["Sustituciones realizadas"], [
-            "B -> S A  ⇒  B -> b A | A B A",
-            "B -> A B A  ⇒  B -> a B A | B C B A",
+            "B -> S A  ⇒  B -> 1 A | A B A",
+            "B -> A B A  ⇒  B -> 0 B A | B C B A",
         ])
 
     def test_g4_reincorpora_epsilon(self):

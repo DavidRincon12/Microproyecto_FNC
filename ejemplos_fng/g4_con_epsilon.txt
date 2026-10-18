@@ -1,7 +1,7 @@
-# G4: gramática general con ε
+# G4: general con ε (pasa por Chomsky)
 # No está en FNC: primero se convierte con el Microproyecto 1 (S0 -> ε se conserva).
 VARIABLES: S
-TERMINALES: a, b
+TERMINALES: 0, 1
 INICIAL: S
 PRODUCCIONES:
-S -> aSb | bSa | SS | ε
+S -> 0S1 | 1S0 | SS | ε
