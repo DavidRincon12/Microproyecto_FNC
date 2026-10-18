@@ -1,4 +1,4 @@
-# G5: expresiones con operadores (pasa por Chomsky)
+# G5: expresiones, pasa por FNC
 # 0 hace de suma, 1 de producto, 2 y 3 de paréntesis y 4 de operando. No está en FNC.
 VARIABLES: E, T, F
 TERMINALES: 0, 1, 2, 3, 4

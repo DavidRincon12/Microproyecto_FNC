@@ -1,4 +1,4 @@
-# G6: general con símbolos no declarados (pasa por Chomsky)
+# G6: no declarados, pasa por FNC
 # B y Q no están declarados, C -> ε, producciones unitarias y variables inútiles (F, G).
 VARIABLES: C, D, E, F, G
 TERMINALES: 0, 1, 2

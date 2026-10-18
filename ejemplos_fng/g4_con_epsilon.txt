@@ -1,4 +1,4 @@
-# G4: general con ε (pasa por Chomsky)
+# G4: general con ε, pasa por FNC
 # No está en FNC: primero se convierte con el Microproyecto 1 (S0 -> ε se conserva).
 VARIABLES: S
 TERMINALES: 0, 1
