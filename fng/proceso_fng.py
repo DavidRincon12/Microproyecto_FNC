@@ -95,6 +95,10 @@ class ProcesoFNG:
         """True si la gramática está bien escrita y lo único que falla es la FNC."""
         return bool(self._errores_fnc)
 
+    def errores_fnc(self) -> list[str]:
+        """Producciones que no cumplen la FNC según la última validación."""
+        return list(self._errores_fnc)
+
     def advertencias(self) -> list[str]:
         """Advertencias de la última validación (símbolos no declarados que se descartaron).
 

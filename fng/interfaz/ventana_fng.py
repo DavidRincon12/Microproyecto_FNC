@@ -307,7 +307,7 @@ class VentanaFNG(tk.Tk):
 
         for linea in texto.split("\n"):
             linea_con_salto = linea + "\n"
-            if linea.startswith("===") or linea.startswith("Paso ") or "Forma Normal" in linea:
+            if linea.startswith("===") or linea.startswith("Paso "):
                 area.insert(tk.END, linea_con_salto, "titulo")
             elif linea.endswith(":") and not linea.startswith(" "):
                 area.insert(tk.END, linea_con_salto, "subtitulo")
@@ -315,11 +315,12 @@ class VentanaFNG(tk.Tk):
                 area.insert(tk.END, linea_con_salto, "eliminada")
             elif linea.strip().startswith("+ "):
                 area.insert(tk.END, linea_con_salto, "agregada")
+            # Los errores van antes que los éxitos: "no cumple la FNC" también contiene "cumple la FNC".
+            elif "no cumple" in linea or "Error:" in linea:
+                area.insert(tk.END, linea_con_salto, "error")
             elif "Observaciones:" in linea or linea.startswith("  * ") or "lenguaje es vacío" in linea:
                 area.insert(tk.END, linea_con_salto, "observacion")
-            elif "Error:" in linea or "errores" in linea.lower():
-                area.insert(tk.END, linea_con_salto, "error")
-            elif "cumple la FNG" in linea or "válida" in linea or "cumple la FNC" in linea:
+            elif "cumple la" in linea or "está en Forma Normal" in linea or "es válida" in linea:
                 area.insert(tk.END, linea_con_salto, "exito")
             else:
                 area.insert(tk.END, linea_con_salto)
@@ -449,10 +450,15 @@ class VentanaFNG(tk.Tk):
             self._actualizar_estado_botones()
             if self.proceso.errores_son_de_fnc():
                 # La gramática está bien escrita pero no en FNC: se ofrece el Microproyecto 1.
-                aviso = "\n\nAdvertencias:\n" + "\n".join(advertencias) if advertencias else ""
+                # El detalle queda en la pestaña "Paso actual"; el diálogo solo resume.
+                cantidad = len(self.proceso.errores_fnc())
+                aviso = (f"\nAdemás hay {len(advertencias)} advertencia(s) de símbolos no declarados."
+                         if advertencias else "")
                 if messagebox.askyesno(
                     "La gramática no está en FNC",
-                    f"{mensaje}{aviso}\n\n¿Desea convertirla primero a FNC con el Microproyecto 1?",
+                    f"{cantidad} producción(es) no cumplen la Forma Normal de Chomsky."
+                    f"{aviso}\nEl detalle se muestra en la pestaña «Paso actual».\n\n"
+                    "¿Desea convertirla primero a FNC con el Microproyecto 1?",
                 ):
                     self._accion_convertir_primero_a_fnc()
                     return
@@ -503,7 +509,7 @@ class VentanaFNG(tk.Tk):
             elif self.proceso.proceso_terminado():
                 g_final = self.proceso.gramatica_final()
                 if g_final:
-                    self._actualizar_texto(self.texto_final, g_final.a_texto())
+                    self._actualizar_texto(self.texto_final, self._texto_gramatica_final(g_final))
                 self.notebook.select(self.tab_final)
                 self.lbl_estado.config(text="Conversión a Forma Normal de Greibach completada.")
             else:
@@ -527,7 +533,7 @@ class VentanaFNG(tk.Tk):
             elif self.proceso.proceso_terminado():
                 g_final = self.proceso.gramatica_final()
                 if g_final:
-                    self._actualizar_texto(self.texto_final, g_final.a_texto())
+                    self._actualizar_texto(self.texto_final, self._texto_gramatica_final(g_final))
                 self.notebook.select(self.tab_final)
                 self.lbl_estado.config(text="Conversión a FNG completada exitosamente.")
         except ErrorProcesoFNG as err:
@@ -536,6 +542,12 @@ class VentanaFNG(tk.Tk):
             messagebox.showerror("Error", f"Error en ejecución automática: {e}")
 
         self._actualizar_estado_botones()
+
+    def _texto_gramatica_final(self, gramatica) -> str:
+        """Gramática final seguida del resultado de la validación de la FNG (último paso)."""
+        validacion = self.proceso.historial().pasos[-1].elementos_identificados
+        lineas = [texto for valores in validacion.values() for texto in valores]
+        return gramatica.a_texto() + "\n\nValidación de la Forma Normal de Greibach:\n" + "\n".join("  " + l for l in lineas)
 
     def _accion_mostrar_original(self) -> None:
         g = self.proceso.gramatica_original()

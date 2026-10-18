@@ -209,6 +209,7 @@ class PruebasErroresYCasosLimite(unittest.TestCase):
         self.assertEqual(len(errores), 7)  # 6 producciones fuera de la FNC y la sugerencia
         self.assertTrue(proceso.errores_son_de_fnc())
         self.assertEqual(len(proceso.advertencias()), 5)
+        self.assertEqual(len(proceso.errores_fnc()), 6)
         self.assertFalse(proceso.gramatica_es_valida())
         with self.assertRaises(ErrorProcesoFNG):
             proceso.ejecutar_todo()
